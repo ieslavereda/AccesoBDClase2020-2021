@@ -8,46 +8,65 @@ import java.util.ArrayList;
 
 import javax.sql.DataSource;
 
-public class MyOracleDataBase implements AlmacenDatosDB{
+public class MyOracleDataBase implements AlmacenDatosDB {
 
-	@Override
-	public ArrayList<Empleado> getEmpleados() {
-		
+	public ArrayList<Empleado> getCustomEmpleados(String where) {
+
 		ArrayList<Empleado> empleados = new ArrayList<Empleado>();
-		
-		DataSource ds = MyDataSource.getMySQLDataSource();
-		
-		try(
-			Connection con = ds.getConnection();
-			Statement stmt = con.createStatement();	
-			ResultSet rs = stmt.executeQuery("SELECT * FROM EMPLEADO")
-			){
-			
+
+		DataSource ds = MyDataSource.getOracleDataSource();
+
+		String query = "SELECT * FROM EMPLEADO";
+
+		if (where != null)
+			query += " WHERE " + where;
+
+		try (Connection con = ds.getConnection();
+				Statement stmt = con.createStatement();
+				ResultSet rs = stmt.executeQuery(query)) {
+
 			Empleado empleado;
-			
-			while(rs.next()) {
-				empleado = new Empleado(rs.getInt("idEmpleado"),
-										rs.getString("DNI"),
-										rs.getString("nombre"),
-										rs.getString("apellidos"),
-										rs.getString("CP"),
-										rs.getString("email"),
-										rs.getDate("fechaNac"),
-										rs.getString("cargo"),
-										rs.getString("domicilio"),
-										rs.getString("password"));
-				
+
+			while (rs.next()) {
+				empleado = new Empleado(rs.getInt("idEmpleado"), rs.getString("DNI"), rs.getString("nombre"),
+						rs.getString("apellidos"), rs.getString("CP"), rs.getString("email"), rs.getDate("fechaNac"),
+						rs.getString("cargo"), rs.getString("domicilio"), rs.getString("password"));
+
 				empleados.add(empleado);
 			}
-			
-			
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return empleados;
 	}
-	
+
+	@Override
+	public ArrayList<Empleado> getEmpleadosPorCP(String cp) {
+		// TODO Auto-generated method stub
+		return getCustomEmpleados("CP='" + cp + "'");
+	}
+
+	@Override
+	public ArrayList<Empleado> getEmpleadosPorCargo(String cargo) {
+		return getCustomEmpleados("cargo='" + cargo + "'");
+	}
+
+	@Override
+	public ArrayList<Empleado> getEmpleados() {
+		return getCustomEmpleados(null);
+
+	}
+
+	@Override
+	public Empleado getEmpleadoPorDNI(String dni) {
+		ArrayList<Empleado> empleados = getCustomEmpleados("DNI='" + dni + "'");
+		if (empleados.size() == 0)
+			return null;
+		else
+			return empleados.get(0);
+	}
 
 }

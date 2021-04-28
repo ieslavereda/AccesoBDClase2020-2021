@@ -1,7 +1,6 @@
 package es.mordor.mordorLloguer.model;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -44,6 +43,42 @@ public class MyDataSource {
 
 			e.printStackTrace();
 
+		}
+
+		return mysqlDS;
+
+	}
+	public static DataSource getOracleDataSource() {
+
+		// Propiedades donde tenemos los datos de acceso a la BD
+
+		Properties props = new Properties();
+
+		// Objeto DataSource que devolveremos
+
+		OracleDataSource mysqlDS = null;
+
+		try (FileInputStream fis = new FileInputStream(defaultProperties);) {
+
+			// Cargamos las propiedades
+
+			props.load(fis);
+
+			// Generamos el DataSource con los datos URL, user y passwd necesarios
+
+			mysqlDS = new OracleDataSource();
+
+			mysqlDS.setURL(props.getProperty("ORACLE_DB_URL"));
+			mysqlDS.setUser(props.getProperty("ORACLE_DB_USERNAME"));
+			mysqlDS.setPassword(props.getProperty("ORACLE_DB_PASSWORD"));
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
 		}
 
 		return mysqlDS;

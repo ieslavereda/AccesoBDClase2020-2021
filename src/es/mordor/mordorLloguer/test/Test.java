@@ -1,6 +1,8 @@
 package es.mordor.mordorLloguer.test;
 
 import es.mordor.mordorLloguer.model.AlmacenDatosDB;
+import es.mordor.mordorLloguer.model.Empleado;
+import es.mordor.mordorLloguer.model.MyOracleDataBase;
 import es.mordor.mordorLloguer.model.MySqlDataBase;
 
 public class Test {
@@ -9,8 +11,10 @@ public class Test {
 		
 		AlmacenDatosDB modelo = new MySqlDataBase();
 		
-		System.out.println(modelo.getEmpleados());
-
+		Empleado e = modelo.getEmpleadoPorDNI("43210987V");
+		e.setDomicilio("La Vereda");
+		modelo.updateEmpleado(e);
+		
 	}
 
 }
