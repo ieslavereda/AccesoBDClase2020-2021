@@ -69,4 +69,10 @@ public class MyOracleDataBase implements AlmacenDatosDB {
 			return empleados.get(0);
 	}
 
+	@Override
+	public boolean updateEmpleado(Empleado empleado) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
