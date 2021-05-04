@@ -1,6 +1,7 @@
 package es.mordor.mordorLloguer.model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -54,7 +55,7 @@ public class MySqlDataBase implements AlmacenDatosDB {
 
 	@Override
 	public ArrayList<Empleado> getEmpleadosPorCargo(String cargo) {
-		return getCustomEmpleados("cargo=\"" + cargo + "\"");
+		return getCustomEmpleados("cargo='" + cargo + "'");
 	}
 
 	@Override
@@ -67,7 +68,6 @@ public class MySqlDataBase implements AlmacenDatosDB {
 	}
 
 	@Override
-
 	public boolean updateEmpleado(Empleado empleado) {
 
 		boolean actualizado = false;
@@ -77,14 +77,14 @@ public class MySqlDataBase implements AlmacenDatosDB {
 		try (Connection con = ds.getConnection();
 				Statement stmt = con.createStatement();) {
 
-			String query = "UPDATE EMPLEADO SET nombre=\"" + empleado.getNombre() + "\", " +
-												"apellidos=\"" + empleado.getApellidos() + "\"," + 
-												((empleado.getDomicilio()!=null)?"domicilio=\"" + empleado.getDomicilio() + "\",":"") + 
-												((empleado.getCP()!=null)?"CP=\""	+ empleado.getCP() + "\",":"") + 
-												"email=\"" + empleado.getEmail() + "\"," + 
-												"fechaNac=\"" + empleado.getFechaNac() + "\"," + 
-												"cargo=\"" + empleado.getCargo() + "\" " + 
-												"WHERE DNI=\"" + empleado.getDNI() + "\"";
+			String query = "UPDATE EMPLEADO SET nombre='" + empleado.getNombre() + "', " +
+												"apellidos='" + empleado.getApellidos() + "'," + 
+												((empleado.getDomicilio()!=null)?"domicilio='" + empleado.getDomicilio() + "',":"") + 
+												((empleado.getCP()!=null)?"CP='"	+ empleado.getCP() + "',":"") + 
+												"email='" + empleado.getEmail() + "'," + 
+												"fechaNac='" + empleado.getFechaNac() + "'," + 
+												"cargo='" + empleado.getCargo() + "' " + 
+												"WHERE DNI='" + empleado.getDNI() + "'";
 
 			
 			if(stmt.executeUpdate(query)==1)
@@ -100,4 +100,89 @@ public class MySqlDataBase implements AlmacenDatosDB {
 
 	}
 
+	@Override
+	public boolean deleteEmpleado(String dni) {
+		DataSource ds = MyDataSource.getMySQLDataSource();
+		String query = "DELETE FROM EMPLEADO " +
+						"WHERE DNI='" + dni +"'";
+		
+		boolean eliminado = false;
+		
+		try(
+			Connection con = ds.getConnection();
+			Statement stmt = con.createStatement();
+		) {
+			
+			if(stmt.executeUpdate(query)==1)
+				eliminado=true;
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return eliminado;
+	}
+
+	@Override
+	public boolean authenticate(String dni, String password) {
+		
+		DataSource ds = MyDataSource.getMySQLDataSource();
+		boolean valido = false;
+		String query = "SELECT COUNT(*) FROM EMPLEADO " + 
+						"WHERE DNI=? AND password=?";
+		
+		try(
+			Connection con = ds.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(query);
+		){
+			
+			pstmt.setString(1, dni);
+			pstmt.setString(2, password);
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			rs.next();
+			if(rs.getInt(1)>0)
+				valido=true;
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		return valido;
+	}
+	// NO UTILIZAR NUNCA 
+//	@Override
+//	public boolean authenticate(String dni, String password) {
+//		
+//		DataSource ds = MyDataSource.getMySQLDataSource();
+//		boolean valido = false;
+//		String query = "SELECT COUNT(*) FROM EMPLEADO " + 
+//						"WHERE DNI='" + dni+ "' AND "+
+//								"password='"+password+"'";
+//		
+//		System.out.println(query);
+//		try(
+//			Connection con = ds.getConnection();
+//			Statement stmt = con.createStatement();
+//			ResultSet rs = stmt.executeQuery(query)
+//		){
+//			
+//			rs.next();
+//			if(rs.getInt(1)>0)
+//				valido=true;
+//			
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}	
+//		
+//		return valido;
+//	}
+
 }
+
+
+

@@ -71,6 +71,44 @@ public class MyOracleDataBase implements AlmacenDatosDB {
 
 	@Override
 	public boolean updateEmpleado(Empleado empleado) {
+
+		boolean actualizado = false;
+
+		DataSource ds = MyDataSource.getOracleDataSource();
+
+		try (Connection con = ds.getConnection(); Statement stmt = con.createStatement();) {
+
+			String query = "UPDATE EMPLEADO SET nombre='" + empleado.getNombre() + "', " + 
+												"apellidos='" + empleado.getApellidos() + "'," + 
+												((empleado.getDomicilio() != null) ? "domicilio='" + empleado.getDomicilio() + "'," : "") + 
+												((empleado.getCP() != null) ? "CP='" + empleado.getCP() + "'," : "") + 
+												"email='" + empleado.getEmail() + "'," + 
+												"fechaNac=TO_DATE('" + empleado.getFechaNac()+"','yyyy-mm-dd')" + "," + 
+												"cargo='" + empleado.getCargo() + "' " + 
+												"WHERE DNI='" + empleado.getDNI() + "'";
+			
+			System.out.println(query);
+
+			if (stmt.executeUpdate(query) == 1)
+				actualizado = true;
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+
+		}
+		return actualizado;
+	}
+
+	@Override
+	public boolean deleteEmpleado(String dni) {
+		
+		
+		return false;
+	}
+
+	@Override
+	public boolean authenticate(String dni, String password) {
 		// TODO Auto-generated method stub
 		return false;
 	}

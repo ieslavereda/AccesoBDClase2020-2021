@@ -10,10 +10,12 @@ public class Test {
 	public static void main(String[] args) {
 		
 		AlmacenDatosDB modelo = new MySqlDataBase();
+		String login = "87654321Z";
+		String password = "1' OR DNI='87654321Z' and password!='1"; 
+		System.out.println(modelo.authenticate(login, password));
 		
-		Empleado e = modelo.getEmpleadoPorDNI("43210987V");
-		e.setDomicilio("La Vereda");
-		modelo.updateEmpleado(e);
+		password="1111";
+		System.out.println(modelo.authenticate(login, password));
 		
 	}
 

@@ -9,4 +9,7 @@ public interface AlmacenDatosDB {
 	public ArrayList<Empleado> getEmpleadosPorCargo(String cargo);
 	public Empleado getEmpleadoPorDNI(String dni);
 	public boolean updateEmpleado(Empleado empleado);
+	public boolean deleteEmpleado(String dni);
+	public boolean authenticate(String dni,String password);
+	
 }
