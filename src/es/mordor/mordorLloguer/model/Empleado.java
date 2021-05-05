@@ -28,6 +28,10 @@ public class Empleado {
 		this.domicilio = domicilio;
 		this.password = password;
 	}
+	
+	public Empleado(String dni) {
+		this.DNI=dni;
+	}
 	public int getIdEmpleado() {
 		return idEmpleado;
 	}
@@ -87,6 +91,15 @@ public class Empleado {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Empleado) {
+			return ((Empleado) o).getDNI().compareToIgnoreCase(DNI)==0;
+		}else{
+			return false;
+		}
 	}
 	
 	@Override
