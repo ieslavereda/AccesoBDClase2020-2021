@@ -1,13 +1,17 @@
 package es.mordorLloguer.vista;
 
 import java.awt.EventQueue;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -24,15 +28,25 @@ import es.mordor.mordorLloguer.model.MyOracleDataBase;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import java.awt.Component;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class FrameEmpleados extends JFrame implements TableModelListener {
 
 	private JPanel contentPane;
 	private WebTable table;
+	static FrameEmpleados frame;
+	private JMenuItem mntmAddRow;
+	private JMenuItem mntmDeleteRow;
+	private JPopupMenu popupMenu;
+	private JMenuItem mntmAddRow_1;
+	private JMenuItem mntmDeleteRow_1;
 
 	/**
 	 * Launch the application.
@@ -42,7 +56,7 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 			public void run() {
 				try {
 					WebLookAndFeel.install();
-					FrameEmpleados frame = new FrameEmpleados();
+					frame = new FrameEmpleados();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -78,7 +92,18 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 		table.setOptimizeRowHeight(true);
 		table.setEditable(true);
 		scrollPane.setViewportView(table);
+		
+		popupMenu = new JPopupMenu();
+		
+		mntmAddRow_1 = new JMenuItem("Add row");
+		popupMenu.add(mntmAddRow_1);
+		
+		mntmDeleteRow_1 = new JMenuItem("Delete row");
+		popupMenu.add(mntmDeleteRow_1);
+		
+
 		contentPane.setLayout(gl_contentPane);
+		
 
 		inicializar();
 	}
@@ -103,12 +128,32 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 		TableColumn column = table.getColumn("Cargo");
 		column.setCellEditor(new DefaultCellEditor(comboBox));
 		
-		
-		
-		
+				
 		mtm.addTableModelListener(this);
 
 		mtm.addEmployee(empleados.get(empleados.size() - 1));
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if(e.getButton()==MouseEvent.BUTTON3) {
+					
+					int row = table.rowAtPoint(e.getPoint());
+					
+					if (row < 0 || row >= table.getRowCount())
+						table.clearSelection();
+					else if (table.getSelectedRowCount() <= 1) {
+						table.setSelectedRow(row);
+						popupMenu.show(table, e.getX(), e.getY());
+					} else if( table.getSelectedRowCount()>1) {
+						popupMenu.show(table, e.getX(), e.getY());
+					}
+					
+					
+				}
+			}
+		});
+		
 
 	}
 
@@ -258,4 +303,21 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 
 	}
 
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
 }
