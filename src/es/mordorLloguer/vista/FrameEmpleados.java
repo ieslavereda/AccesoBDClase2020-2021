@@ -5,6 +5,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,7 +16,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
 import com.alee.laf.WebLookAndFeel;
@@ -25,25 +25,21 @@ import com.alee.laf.table.editors.WebDateEditor;
 import es.mordor.mordorLloguer.model.AlmacenDatosDB;
 import es.mordor.mordorLloguer.model.Empleado;
 import es.mordor.mordorLloguer.model.MyOracleDataBase;
+import es.mordor.mordorLloguer.model.MyTableModel;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.Component;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class FrameEmpleados extends JFrame implements TableModelListener {
 
 	private JPanel contentPane;
 	private WebTable table;
 	static FrameEmpleados frame;
-	private JMenuItem mntmAddRow;
-	private JMenuItem mntmDeleteRow;
 	private JPopupMenu popupMenu;
 	private JMenuItem mntmAddRow_1;
 	private JMenuItem mntmDeleteRow_1;
@@ -113,7 +109,7 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 		AlmacenDatosDB modelo = new MyOracleDataBase();
 		ArrayList<Empleado> empleados = modelo.getEmpleados();
 
-		MyTableModel mtm = new MyTableModel(empleados);
+		MyEmpleadoTableModel mtm = new MyEmpleadoTableModel(empleados);
 		table.setModel(mtm);
 		
 		table.setDefaultEditor(Date.class, new WebDateEditor());
@@ -157,115 +153,50 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 
 	}
 
-	private class MyTableModel extends AbstractTableModel {
+	private class MyEmpleadoTableModel extends MyTableModel<Empleado>{
 
-		private final String[] HEADER = { "DNI", "Nombre", "Nacimiento","Cargo" };
-
-		List<Empleado> data;
-
-		public MyTableModel(List<Empleado> data) {
-			this.data = data;
-		}
-
-		@Override
-		public int getColumnCount() {
-
-			return HEADER.length;
-		}
-
-		@Override
-		public int getRowCount() {
-			return data.size();
-		}
-
-		@Override
-		public String getColumnName(int column) {
-			return HEADER[column];
+		public MyEmpleadoTableModel(List<Empleado> data) {
+			super(Arrays.asList("DNI","Nombre","Fecha","Cargo"), data);
+			
 		}
 		
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			switch(columnIndex) {
-			case 2: return Date.class;
-			default: return String.class;
-			}
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			if (columnIndex == 0)
-				return false;
-			else
-				return true;
-		
-		}
-
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			switch (columnIndex) {
-
+		
 			case 1:
 				data.get(rowIndex).setNombre(aValue.toString());
 				break;
-
+		
 			case 2:
-				java.util.Date fecha = (java.util.Date)aValue;
+				java.util.Date fecha = (java.util.Date) aValue;
 				data.get(rowIndex).setFechaNac(new java.sql.Date(fecha.getTime()));
 				break;
 			case 3:
 				data.get(rowIndex).setCargo(aValue.toString());
 				break;
 			}
-
+		
 			fireTableCellUpdated(rowIndex, columnIndex);
 		}
-
 		@Override
 		public Object getValueAt(int row, int col) {
 			switch (col) {
 			case 0:
 				return data.get(row).getDNI();
-
+		
 			case 1:
 				return data.get(row).getNombre();
-
+		
 			case 2:
 				return data.get(row).getFechaNac();
-
+		
 			case 3:
 				return data.get(row).getCargo();
-
+		
 			}
 			return null;
 		}
-
-		public void addEmployee(Empleado empleado) {
-			data.add(empleado);
-			fireTableRowsInserted(data.size() - 1, data.size() - 1);
-
-		}
-		public ArrayList<Empleado> getEmployee(int[] rows) {
-			ArrayList<Empleado> empleados = new ArrayList<Empleado>();
-			
-			for(int row : rows)
-				empleados.add(getEmployee(row));
-			
-			return empleados;
-		}
-
-		public Empleado getEmployee(int row) {
-			if (row < 0 || row >= data.size())
-				return null;
-			else
-				return data.get(row);
-		}
-
-		public void removeEmployee(Empleado employee) {
-			int pos = data.indexOf(employee);
-			data.remove(employee);
-			fireTableRowsDeleted(pos, pos);
-		}
-
 		public void removeEmployee(String dni) {
 			boolean encontrado = false;
 
@@ -287,7 +218,7 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 			if (encontrado)
 				fireTableRowsDeleted(pos, pos);
 		}
-
+		
 	}
 
 	@Override
@@ -320,4 +251,6 @@ public class FrameEmpleados extends JFrame implements TableModelListener {
 			}
 		});
 	}
+	
+	
 }
